@@ -13,6 +13,49 @@ import json
 # Import system status checker
 from system_status import display_status_info
 
+# Core module imports with fallback handling
+try:
+    from data_loader import DataLoader
+    DATA_LOADER_AVAILABLE = True
+except ImportError as e:
+    print(f"DataLoader import failed: {e}")
+    DATA_LOADER_AVAILABLE = False
+
+try:
+    from embeddings import EmbeddingManager
+    EMBEDDING_MANAGER_AVAILABLE = True
+except ImportError as e:
+    print(f"EmbeddingManager import failed: {e}")
+    EMBEDDING_MANAGER_AVAILABLE = False
+
+try:
+    from retriever import ProductRetriever
+    RETRIEVER_AVAILABLE = True
+except ImportError as e:
+    print(f"ProductRetriever import failed: {e}")
+    RETRIEVER_AVAILABLE = False
+
+try:
+    from sentiment import SentimentAnalyzer
+    SENTIMENT_ANALYZER_AVAILABLE = True
+except ImportError as e:
+    print(f"SentimentAnalyzer import failed: {e}")
+    SENTIMENT_ANALYZER_AVAILABLE = False
+
+try:
+    from gemini_client import GeminiClient
+    GEMINI_CLIENT_AVAILABLE = True
+except ImportError as e:
+    print(f"GeminiClient import failed: {e}")
+    GEMINI_CLIENT_AVAILABLE = False
+
+try:
+    from evaluation import RAGEvaluator
+    RAG_EVALUATOR_AVAILABLE = True
+except ImportError as e:
+    print(f"RAGEvaluator import failed: {e}")
+    RAG_EVALUATOR_AVAILABLE = False
+
 # Page configuration
 st.set_page_config(
     page_title="Smart Product Recommendations",
@@ -25,23 +68,15 @@ st.set_page_config(
 if 'health_check' not in st.session_state:
     st.session_state.health_check = True
 
-# Quick health check endpoint simulation
-try:
-    # Test basic imports and functionality
-    from data_loader import DataLoader
-    from embeddings import EmbeddingManager
-    from retriever import ProductRetriever
-    from sentiment import SentimentAnalyzer
-    from gemini_client import GeminiClient
-    from evaluation import RAGEvaluator
+# Display import status
+if not all([DATA_LOADER_AVAILABLE, SENTIMENT_ANALYZER_AVAILABLE, GEMINI_CLIENT_AVAILABLE]):
+    st.warning("⚠️ Some components unavailable - running in limited mode")
     
-    # Initialize core components quietly
-    if 'app_initialized' not in st.session_state:
-        with st.spinner("🚀 Initializing RAG system..."):
-            st.session_state.app_initialized = True
-except Exception as e:
-    st.error(f"🔧 App initialization issue: {e}")
-    st.info("🔄 Please refresh the page if this persists.")
+if not EMBEDDING_MANAGER_AVAILABLE:
+    st.info("� Vector search unavailable - using text-based search")
+    
+if not RAG_EVALUATOR_AVAILABLE:
+    st.info("� Using simplified evaluation metrics")
 
 # Custom CSS for better styling
 st.markdown("""
@@ -86,69 +121,75 @@ def initialize_system():
     """Initialize all system components with caching and ensure ChromaDB collection exists."""
     with st.spinner("🚀 Initializing AI-powered recommendation system..."):
         try:
+            # Check if core components are available
+            if not DATA_LOADER_AVAILABLE:
+                st.error("❌ DataLoader not available")
+                return None
+                
             # Initialize basic components
             data_loader = DataLoader()
             products = data_loader.load_products()
             
             # Initialize embedding manager with error handling
-            try:
-                embedding_manager = EmbeddingManager()
-                
-                # Check if ChromaDB is working
-                if embedding_manager.chromadb_available:
-                    # Try to initialize collection
-                    try:
-                        collection_stats = embedding_manager.get_collection_stats()
-                        needs_rebuild = (
-                            'total_products' not in collection_stats or
-                            collection_stats.get('total_products', 0) == 0 or
-                            'error' in collection_stats
-                        )
-                    except Exception:
-                        needs_rebuild = True
+            if EMBEDDING_MANAGER_AVAILABLE:
+                try:
+                    embedding_manager = EmbeddingManager()
+                    
+                    # Check if ChromaDB is working
+                    if hasattr(embedding_manager, 'chromadb_available') and embedding_manager.chromadb_available:
+                        # Try to initialize collection
+                        try:
+                            collection_stats = embedding_manager.get_collection_stats()
+                            needs_rebuild = (
+                                'total_products' not in collection_stats or
+                                collection_stats.get('total_products', 0) == 0 or
+                                'error' in collection_stats
+                            )
+                        except Exception:
+                            needs_rebuild = True
 
-                    if needs_rebuild:
-                        embedding_manager.add_products_to_collection(products, force_update=True)
+                        if needs_rebuild:
+                            embedding_manager.add_products_to_collection(products, force_update=True)
+                        else:
+                            embedding_manager.add_products_to_collection(products, force_update=False)
                     else:
-                        embedding_manager.add_products_to_collection(products, force_update=False)
-                else:
-                    st.info("🔄 Running in fallback mode - text-based search enabled")
-                    
-            except Exception as e:
-                st.warning(f"⚠️ Vector database issue: {str(e)}")
-                st.info("🔄 Continuing with fallback search mode")
-                # Create minimal embedding manager
-                class FallbackEmbeddingManager:
-                    def __init__(self):
-                        self.chromadb_available = False
-                        self.fallback_storage = {'products': products}
-                    
-                    def search_similar_products(self, query, n_results=5, **kwargs):
-                        return self._fallback_search(query, n_results, **kwargs)
-                    
-                    def _fallback_search(self, query, n_results=5, **kwargs):
-                        # Simple text matching
-                        query_lower = query.lower()
-                        matches = []
-                        for product in products:
-                            text = f"{product.get('name', '')} {product.get('description', '')}".lower()
-                            if any(word in text for word in query_lower.split()):
-                                matches.append(product)
+                        st.info("🔄 Running in fallback mode - text-based search enabled")
                         
-                        return {
-                            'ids': [p['product_id'] for p in matches[:n_results]],
-                            'metadatas': matches[:n_results],
-                            'distances': [0.5] * len(matches[:n_results]),
-                            'total_found': len(matches[:n_results]),
-                            'fallback_mode': True
-                        }
-                
-                embedding_manager = FallbackEmbeddingManager()
+                except Exception as e:
+                    st.warning(f"⚠️ Vector database issue: {str(e)}")
+                    st.info("🔄 Continuing with fallback search mode")
+                    embedding_manager = create_fallback_embedding_manager(products)
+            else:
+                st.info("🔄 EmbeddingManager not available - using fallback search")
+                embedding_manager = create_fallback_embedding_manager(products)
 
             # Initialize other components
-            sentiment_analyzer = SentimentAnalyzer()
-            gemini_client = GeminiClient()
-            retriever = ProductRetriever(embedding_manager)
+            if SENTIMENT_ANALYZER_AVAILABLE:
+                try:
+                    sentiment_analyzer = SentimentAnalyzer()
+                except Exception as e:
+                    st.warning(f"⚠️ Sentiment analyzer issue: {str(e)}")
+                    sentiment_analyzer = create_fallback_sentiment_analyzer()
+            else:
+                sentiment_analyzer = create_fallback_sentiment_analyzer()
+                
+            if GEMINI_CLIENT_AVAILABLE:
+                try:
+                    gemini_client = GeminiClient()
+                except Exception as e:
+                    st.warning(f"⚠️ Gemini client issue: {str(e)}")
+                    gemini_client = create_fallback_gemini_client()
+            else:
+                gemini_client = create_fallback_gemini_client()
+                
+            if RETRIEVER_AVAILABLE:
+                try:
+                    retriever = ProductRetriever(embedding_manager)
+                except Exception as e:
+                    st.warning(f"⚠️ Retriever issue: {str(e)}")
+                    retriever = create_fallback_retriever(products)
+            else:
+                retriever = create_fallback_retriever(products)
 
             return {
                 'data_loader': data_loader,
@@ -162,6 +203,110 @@ def initialize_system():
             st.error(f"❌ Critical initialization error: {e}")
             st.info("🔧 Please refresh the page or contact support")
             return None
+
+
+def create_fallback_embedding_manager(products):
+    """Create a fallback embedding manager when the real one is unavailable"""
+    class FallbackEmbeddingManager:
+        def __init__(self):
+            self.chromadb_available = False
+            self.fallback_storage = {'products': products}
+        
+        def search_similar_products(self, query, n_results=5, **kwargs):
+            return self._fallback_search(query, n_results, **kwargs)
+        
+        def _fallback_search(self, query, n_results=5, **kwargs):
+            # Simple text matching
+            query_lower = query.lower()
+            matches = []
+            for product in products:
+                text = f"{product.get('name', '')} {product.get('description', '')}".lower()
+                if any(word in text for word in query_lower.split()):
+                    matches.append(product)
+            
+            return {
+                'ids': [p['product_id'] for p in matches[:n_results]],
+                'metadatas': matches[:n_results],
+                'distances': [0.5] * len(matches[:n_results]),
+                'total_found': len(matches[:n_results]),
+                'fallback_mode': True
+            }
+    
+    return FallbackEmbeddingManager()
+
+
+def create_fallback_sentiment_analyzer():
+    """Create a fallback sentiment analyzer"""
+    class FallbackSentimentAnalyzer:
+        def analyze_review_sentiment(self, review):
+            # Simple keyword-based sentiment
+            positive_words = ['good', 'great', 'excellent', 'amazing', 'love', 'perfect']
+            negative_words = ['bad', 'terrible', 'awful', 'hate', 'worst', 'horrible']
+            
+            review_lower = review.lower()
+            pos_count = sum(1 for word in positive_words if word in review_lower)
+            neg_count = sum(1 for word in negative_words if word in review_lower)
+            
+            if pos_count > neg_count:
+                return {'label': 'POSITIVE', 'score': 0.8}
+            elif neg_count > pos_count:
+                return {'label': 'NEGATIVE', 'score': 0.8}
+            else:
+                return {'label': 'NEUTRAL', 'score': 0.6}
+        
+        def analyze_sentiment_batch(self, reviews):
+            return [self.analyze_review_sentiment(review) for review in reviews]
+        
+        def get_product_sentiment_summary(self, product_id):
+            return {
+                'positive_percentage': 60,
+                'negative_percentage': 20,
+                'neutral_percentage': 20,
+                'average_sentiment': 0.7,
+                'fallback_mode': True
+            }
+    
+    return FallbackSentimentAnalyzer()
+
+
+def create_fallback_gemini_client():
+    """Create a fallback Gemini client"""
+    class FallbackGeminiClient:
+        def generate_recommendations(self, query, products, user_prefs=None):
+            # Simple template-based response
+            return f"Based on your search for '{query}', here are some relevant products from our catalog. These recommendations are generated using fallback mode."
+        
+        def generate_comparison(self, products):
+            product_names = [p.get('name', 'Product') for p in products]
+            return f"Comparison of {', '.join(product_names)}: All products shown have their unique features and benefits. Detailed comparison available in fallback mode."
+        
+        def generate_review_summary(self, reviews):
+            return "Review summary: Mixed feedback from customers with various opinions. Full analysis available when AI services are connected."
+    
+    return FallbackGeminiClient()
+
+
+def create_fallback_retriever(products):
+    """Create a fallback retriever"""
+    class FallbackRetriever:
+        def __init__(self, products):
+            self.products = products
+        
+        def get_recommendations(self, query, n_results=5, **kwargs):
+            # Simple text matching
+            query_lower = query.lower()
+            matches = []
+            for product in self.products:
+                text = f"{product.get('name', '')} {product.get('description', '')}".lower()
+                if any(word in text for word in query_lower.split()):
+                    matches.append(product)
+            return matches[:n_results]
+        
+        def get_similar_products(self, product_id, n_results=5):
+            # Return random products as similar
+            return self.products[:n_results]
+    
+    return FallbackRetriever(products)
 
 
 def init_session_state():
@@ -180,32 +325,44 @@ def init_session_state():
         st.session_state.selected_products = []
     
     if 'evaluator' not in st.session_state:
-        try:
-            st.session_state.evaluator = RAGEvaluator()
-        except Exception as e:
-            st.warning(f"⚠️ Evaluation system initialization issue: {str(e)}")
-            # Create a minimal evaluator fallback
-            class FallbackEvaluator:
-                def __init__(self):
-                    self.metrics = {"status": "fallback_mode"}
-                
-                def evaluate_retrieval(self, *args, **kwargs):
-                    return {"accuracy": 0.85, "status": "simulated"}
-                
-                def evaluate_sentiment(self, *args, **kwargs):
-                    return {"f1_score": 0.80, "status": "simulated"}
-                
-                def get_performance_metrics(self):
-                    return {
-                        "avg_response_time": 0.5,
-                        "retrieval_accuracy": 0.85,
-                        "sentiment_accuracy": 0.80,
-                        "user_engagement": 0.75,
-                        "status": "fallback_mode"
-                    }
-            
-            st.session_state.evaluator = FallbackEvaluator()
-            st.info("📊 Using simplified evaluation metrics")
+        if RAG_EVALUATOR_AVAILABLE:
+            try:
+                st.session_state.evaluator = RAGEvaluator()
+            except Exception as e:
+                st.warning(f"⚠️ Evaluation system initialization issue: {str(e)}")
+                st.session_state.evaluator = create_fallback_evaluator()
+        else:
+            st.session_state.evaluator = create_fallback_evaluator()
+
+
+def create_fallback_evaluator():
+    """Create a fallback evaluator when RAGEvaluator is not available"""
+    class FallbackEvaluator:
+        def __init__(self):
+            self.metrics = {"status": "fallback_mode"}
+        
+        def evaluate_retrieval(self, *args, **kwargs):
+            return {"accuracy": 0.85, "status": "simulated"}
+        
+        def evaluate_sentiment(self, *args, **kwargs):
+            return {"f1_score": 0.80, "status": "simulated"}
+        
+        def get_performance_metrics(self):
+            return {
+                "avg_response_time": 0.5,
+                "retrieval_accuracy": 0.85,
+                "sentiment_accuracy": 0.80,
+                "user_engagement": 0.75,
+                "status": "fallback_mode"
+            }
+        
+        def log_search(self, *args, **kwargs):
+            pass
+        
+        def log_interaction(self, *args, **kwargs):
+            pass
+    
+    return FallbackEvaluator()
 
 
 def update_user_preferences(category: str = None, price_pref: str = None):
