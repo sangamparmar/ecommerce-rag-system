@@ -159,6 +159,38 @@ class FallbackProductRetriever:
         self.embedding_manager = embedding_manager
         print("✅ Fallback product retriever initialized")
     
+    def retrieve_products(self, query: str, n_results: int = 5, 
+                         category_filter: str = None, 
+                         price_range: tuple = None,
+                         user_preferences: dict = None):
+        """Main retrieval method that matches the original interface."""
+        import time
+        start_time = time.time()
+        
+        # Call the embedding manager's search
+        search_results = self.embedding_manager.search_similar_products(
+            query=query, 
+            n_results=n_results,
+            category_filter=category_filter,
+            price_range=price_range
+        )
+        
+        end_time = time.time()
+        
+        # Format results to match expected structure
+        return {
+            'products': search_results.get('metadatas', []),
+            'similarities': search_results.get('distances', []),
+            'total_found': search_results.get('total_found', 0),
+            'retrieval_time': end_time - start_time,
+            'filters_applied': {
+                'category': category_filter,
+                'price_range': price_range,
+                'personalized': user_preferences is not None
+            },
+            'fallback_mode': True
+        }
+    
     def search_products(self, query: str, n_results: int = 5, **kwargs):
         """Search products using embedding manager."""
         return self.embedding_manager.search_similar_products(query, n_results, **kwargs)

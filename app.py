@@ -514,10 +514,21 @@ def recommendation_page(systems: Dict[str, Any]):
     if search_button and user_query:
         with st.spinner("🔍 Searching for products..."):
             try:
+                # Debug: Show system status
+                if hasattr(systems['embedding_manager'], 'fallback_mode'):
+                    st.info("🔄 Using fallback search mode")
+                
                 # Prepare filters
                 category_filter = selected_category if selected_category != "All Categories" else None
                 price_filter = price_range if price_range != (min_price, max_price) else None
                 user_prefs = st.session_state.user_preferences if use_personalization else None
+                
+                # Debug: Show search parameters
+                st.write(f"🔍 Searching for: '{user_query}'")
+                if category_filter:
+                    st.write(f"📂 Category filter: {category_filter}")
+                if price_filter:
+                    st.write(f"💰 Price range: ${price_filter[0]} - ${price_filter[1]}")
                 
                 # Retrieve products
                 retrieval_results = systems['retriever'].retrieve_products(
@@ -527,6 +538,9 @@ def recommendation_page(systems: Dict[str, Any]):
                     price_range=price_filter,
                     user_preferences=user_prefs
                 )
+                
+                # Debug: Show retrieval results summary
+                st.write(f"📊 Search completed: {retrieval_results.get('total_found', 0)} products found")
                 
                 if retrieval_results['products']:
                     # Generate AI recommendations

@@ -33,6 +33,8 @@ class FallbackEmbeddingManager:
         query_lower = query.lower()
         matches = []
         
+        print(f"🔍 Fallback search for: '{query}' in {len(self.products)} products")
+        
         for product in self.products:
             # Create searchable text
             searchable_text = f"{product.get('name', '')} {product.get('description', '')} {product.get('category', '')}".lower()
@@ -40,6 +42,12 @@ class FallbackEmbeddingManager:
             # Calculate simple match score
             score = 0
             query_words = query_lower.split()
+            
+            # Check for exact phrase match (higher score)
+            if query_lower in searchable_text:
+                score += 5
+            
+            # Check for individual word matches
             for word in query_words:
                 if word in searchable_text:
                     score += 1
@@ -53,16 +61,29 @@ class FallbackEmbeddingManager:
                 if not (price_range[0] <= price <= price_range[1]):
                     continue
             
+            # Include products with any score > 0, or if no word matches, include random products
             if score > 0:
                 matches.append({
                     'product': product,
                     'score': score,
-                    'distance': max(0, 1.0 - (score / len(query_words)))
+                    'distance': max(0, 1.0 - (score / (len(query_words) + 5)))
+                })
+        
+        # If no matches found, return some random products (to ensure we always have results)
+        if not matches and not category_filter:
+            print("⚠️ No matches found, returning random products")
+            for product in self.products[:n_results]:
+                matches.append({
+                    'product': product,
+                    'score': 0.1,
+                    'distance': 0.9
                 })
         
         # Sort by score and limit results
         matches.sort(key=lambda x: x['score'], reverse=True)
         matches = matches[:n_results]
+        
+        print(f"✅ Found {len(matches)} matches")
         
         # Format results
         return {
