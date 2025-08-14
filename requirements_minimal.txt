@@ -1,0 +1,15 @@
+# Minimal requirements for quick deployment
+streamlit==1.28.1
+pandas==2.0.3
+google-generativeai==0.3.2
+python-dotenv==1.0.0
+requests==2.31.0
+numpy==1.24.3
+pillow
+typing-extensions==4.8.0
+
+# Optional: Add these one by one after successful deployment
+# sentence-transformers==2.2.2
+# chromadb==0.4.24
+# transformers==4.36.2
+# torch==2.1.1
