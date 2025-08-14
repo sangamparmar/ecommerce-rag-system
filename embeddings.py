@@ -3,13 +3,24 @@ Embedding generation and vector database management using ChromaDB and Sentence 
 Handles creating embeddings for product data and storing them in a persistent ChromaDB collection.
 """
 
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
+import os
+import sys
+import json
 import numpy as np
 from typing import List, Dict, Any, Tuple
-import os
-import json
+
+# ChromaDB import with fallback handling
+try:
+    import chromadb
+    from chromadb.config import Settings
+    CHROMADB_AVAILABLE = True
+except ImportError as e:
+    print(f"ChromaDB import failed: {e}")
+    print("Installing compatible ChromaDB version...")
+    CHROMADB_AVAILABLE = False
+
+# Sentence Transformers import
+from sentence_transformers import SentenceTransformer
 from data_loader import DataLoader
 
 
@@ -30,12 +41,17 @@ class EmbeddingManager:
         self.client = None
         self.collection = None
         self.collection_name = "product_embeddings"
+        self.chromadb_available = CHROMADB_AVAILABLE
         
         # Initialize the embedding model
         self._load_model()
         
-        # Initialize ChromaDB client
-        self._init_chroma_client()
+        # Initialize ChromaDB client with error handling
+        if self.chromadb_available:
+            self._init_chroma_client()
+        else:
+            print("⚠️ ChromaDB not available - using fallback storage")
+            self._init_fallback_storage()
     
     def _load_model(self):
         """Load the sentence transformer model."""
@@ -47,9 +63,21 @@ class EmbeddingManager:
             print(f"Error loading embedding model: {e}")
             raise
     
+    def _init_fallback_storage(self):
+        """Initialize fallback storage when ChromaDB is not available."""
+        self.fallback_storage = {
+            'embeddings': {},
+            'metadata': {},
+            'products': {}
+        }
+        print("✅ Fallback storage initialized")
+    
     def _init_chroma_client(self):
         """Initialize ChromaDB client and collection."""
         try:
+            if not CHROMADB_AVAILABLE:
+                raise ImportError("ChromaDB not available")
+                
             # Create the database directory if it doesn't exist
             os.makedirs(self.db_path, exist_ok=True)
             
@@ -243,6 +271,10 @@ class EmbeddingManager:
         Returns:
             Dictionary with search results
         """
+        # Check if ChromaDB is available
+        if not self.chromadb_available:
+            return self._fallback_search(query, n_results, category_filter, price_range)
+        
         # Ensure collection exists
         self.ensure_collection_exists()
         
@@ -370,6 +402,76 @@ class EmbeddingManager:
                 self.collection = None
         except Exception as e:
             print(f"Error deleting collection: {e}")
+    
+    def _fallback_search(self, query: str, n_results: int = 5, 
+                        category_filter: str = None, 
+                        price_range: Tuple[float, float] = None) -> Dict[str, Any]:
+        """
+        Fallback search method when ChromaDB is not available.
+        Uses simple text matching and returns mock results.
+        """
+        try:
+            # Load products for fallback search
+            loader = DataLoader()
+            products = loader.load_products()
+            
+            # Simple text matching
+            query_lower = query.lower()
+            matched_products = []
+            
+            for product in products:
+                score = 0
+                product_text = f"{product.get('name', '')} {product.get('description', '')} {product.get('category', '')}".lower()
+                
+                # Simple scoring based on keyword matches
+                query_words = query_lower.split()
+                for word in query_words:
+                    if word in product_text:
+                        score += 1
+                
+                # Apply filters
+                if category_filter and product.get('category') != category_filter:
+                    continue
+                    
+                if price_range:
+                    price = product.get('price', 0)
+                    if not (price_range[0] <= price <= price_range[1]):
+                        continue
+                
+                if score > 0:
+                    matched_products.append({
+                        'product': product,
+                        'score': score,
+                        'distance': 1.0 - (score / len(query_words))  # Convert to distance
+                    })
+            
+            # Sort by score and limit results
+            matched_products.sort(key=lambda x: x['score'], reverse=True)
+            matched_products = matched_products[:n_results]
+            
+            # Format results to match ChromaDB output
+            results = {
+                'ids': [p['product']['product_id'] for p in matched_products],
+                'distances': [p['distance'] for p in matched_products],
+                'metadatas': [p['product'] for p in matched_products],
+                'total_found': len(matched_products),
+                'query': query,
+                'fallback_mode': True
+            }
+            
+            return results
+            
+        except Exception as e:
+            print(f"Error in fallback search: {e}")
+            return {
+                'ids': [],
+                'distances': [],
+                'metadatas': [],
+                'total_found': 0,
+                'query': query,
+                'error': str(e),
+                'fallback_mode': True
+            }
 
 
 def main():
