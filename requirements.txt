@@ -1,15 +1,15 @@
-# Streamlit Cloud Compatible Requirements
-# This version works without ChromaDB to avoid SQLite issues
-
 streamlit==1.28.1
 pandas==2.0.3
+sentence-transformers==2.2.2
+chromadb==0.4.24
 google-generativeai==0.3.2
 python-dotenv==1.0.0
-transformers==4.35.2
+transformers==4.36.2
+pillow>=10.1.0
 numpy==1.24.3
-requests==2.31.0
+torch==2.1.1
 typing-extensions==4.8.0
-scikit-learn==1.3.2
-
-# Note: ChromaDB removed due to SQLite version conflicts on Streamlit Cloud
-# App will use fallback text-based search instead of vector search
+pydantic==1.10.13
+requests==2.31.0
+huggingface-hub==0.19.4
+safetensors==0.4.1
