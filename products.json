@@ -1,0 +1,252 @@
+[
+  {
+    "product_id": "laptop_001",
+    "name": "TechPro UltraBook 15",
+    "category": "Laptops",
+    "description": "High-performance laptop with Intel i7 processor, 16GB RAM, and 512GB SSD. Perfect for professionals and gamers alike.",
+    "specifications": {
+      "processor": "Intel Core i7-12700H",
+      "ram": "16GB DDR4",
+      "storage": "512GB NVMe SSD",
+      "display": "15.6\" FHD IPS",
+      "graphics": "NVIDIA RTX 3060",
+      "battery": "8 hours",
+      "weight": "2.1 kg"
+    },
+    "price": 1299.99,
+    "image_url": "https://tse1.mm.bing.net/th/id/OIP.HeQ-Ev9IvF2TwUr9v_C62gHaED?rs=1&pid=ImgDetMain&o=7&rm=3",
+    "reviews": [
+      "Amazing laptop! Super fast and great for gaming. The build quality is excellent.",
+      "Battery life could be better, but performance is outstanding. Highly recommended!",
+      "Best purchase I've made this year. Worth every penny.",
+      "Great laptop but gets a bit hot during intensive gaming sessions.",
+      "Perfect for programming and video editing. Very satisfied with the purchase."
+    ]
+  },
+  {
+    "product_id": "laptop_002",
+    "name": "BudgetMaster Lite 14",
+    "category": "Laptops",
+    "description": "Affordable laptop for everyday tasks with AMD Ryzen 5 processor and 8GB RAM. Great value for money.",
+    "specifications": {
+      "processor": "AMD Ryzen 5 5500U",
+      "ram": "8GB DDR4",
+      "storage": "256GB SSD",
+      "display": "14\" FHD",
+      "graphics": "Integrated AMD Radeon",
+      "battery": "10 hours",
+      "weight": "1.5 kg"
+    },
+    "price": 549.99,
+    "image_url": "https://images.unsplash.com/photo-1525373612132-b3e820b87cea?w=400",
+    "reviews": [
+      "Great value for the price. Perfect for basic tasks and web browsing.",
+      "Lightweight and portable. Battery life is impressive.",
+      "Not suitable for gaming but excellent for office work and studying.",
+      "Build quality feels a bit cheap, but it gets the job done.",
+      "Good laptop for students. Can't complain at this price point.",
+      "Terrible keyboard! Keys started sticking after just 2 months of use.",
+      "Screen is too dim and colors look washed out. Very disappointed.",
+      "Slow performance, takes forever to boot up. Waste of money."
+    ]
+  },
+  {
+    "product_id": "phone_001",
+    "name": "SmartPhone Pro Max",
+    "category": "Smartphones",
+    "description": "Premium smartphone with triple camera system, 5G connectivity, and all-day battery life.",
+    "specifications": {
+      "display": "6.7\" OLED 120Hz",
+      "processor": "A16 Bionic",
+      "ram": "8GB",
+      "storage": "256GB",
+      "camera": "48MP Triple Camera",
+      "battery": "4500mAh",
+      "connectivity": "5G, WiFi 6"
+    },
+    "price": 999.99,
+    "image_url": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+    "reviews": [
+      "Camera quality is absolutely stunning. Best phone I've ever owned!",
+      "Expensive but worth it. The display is gorgeous and performance is smooth.",
+      "Battery lasts all day even with heavy usage. Very impressed.",
+      "Face ID works perfectly and the build quality is premium.",
+      "A bit pricey but the camera and performance justify the cost.",
+      "Overpriced! Same features available in cheaper phones.",
+      "Battery drains too fast when using 5G. Very frustrating.",
+      "Camera app crashes frequently. Poor software optimization."
+    ]
+  },
+  {
+    "product_id": "phone_002",
+    "name": "ValuePhone 5G",
+    "category": "Smartphones",
+    "description": "Budget-friendly 5G smartphone with decent camera and long battery life. Perfect for everyday use.",
+    "specifications": {
+      "display": "6.5\" LCD",
+      "processor": "Snapdragon 695",
+      "ram": "6GB",
+      "storage": "128GB",
+      "camera": "50MP Dual Camera",
+      "battery": "5000mAh",
+      "connectivity": "5G, WiFi 5"
+    },
+    "price": 299.99,
+    "image_url": "https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400",
+    "reviews": [
+      "Great phone for the price. 5G works well and battery life is excellent.",
+      "Camera is decent for the price range. Not flagship quality but good enough.",
+      "Performance is smooth for daily tasks. No complaints so far.",
+      "Build quality could be better but it's expected at this price.",
+      "Perfect starter 5G phone. Recommended for budget-conscious buyers.",
+      "Phone keeps freezing and restarting randomly. Very unreliable.",
+      "5G connectivity is spotty and often doesn't work. Disappointed.",
+      "Camera quality is terrible in low light. Photos look grainy and blurry."
+    ]
+  },
+  {
+    "product_id": "headphones_001",
+    "name": "AudioMax Pro Wireless",
+    "category": "Headphones",
+    "description": "Premium noise-cancelling wireless headphones with high-quality audio and long battery life.",
+    "specifications": {
+      "type": "Over-ear",
+      "connectivity": "Bluetooth 5.0, 3.5mm jack",
+      "battery": "30 hours",
+      "noise_cancelling": "Active ANC",
+      "drivers": "40mm dynamic",
+      "weight": "250g"
+    },
+    "price": 249.99,
+    "image_url": "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400",
+    "reviews": [
+      "Sound quality is amazing! Noise cancellation works perfectly.",
+      "Comfortable for long listening sessions. Battery life is incredible.",
+      "Best headphones I've owned. Worth the investment.",
+      "ANC is good but not the best I've tried. Still recommended.",
+      "Great for travel and commuting. Folds nicely for storage.",
+      "Overpriced for what you get. Cheaper alternatives sound just as good.",
+      "Noise cancellation stopped working after 6 months. Poor durability.",
+      "Uncomfortable for extended use. Hurts my ears after an hour."
+    ]
+  },
+  {
+    "product_id": "headphones_002",
+    "name": "SoundBudget Wireless",
+    "category": "Headphones",
+    "description": "Affordable wireless headphones with decent sound quality and comfortable fit.",
+    "specifications": {
+      "type": "On-ear",
+      "connectivity": "Bluetooth 4.2",
+      "battery": "20 hours",
+      "noise_cancelling": "Passive",
+      "drivers": "32mm dynamic",
+      "weight": "180g"
+    },
+    "price": 79.99,
+    "image_url": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400",
+    "reviews": [
+      "Good value for money. Sound is decent for the price.",
+      "Comfortable but build quality feels a bit flimsy.",
+      "Perfect for casual listening. Don't expect audiophile quality.",
+      "Battery life is good and they're lightweight.",
+      "Great budget option. Happy with the purchase."
+    ]
+  },
+  {
+    "product_id": "mouse_001",
+    "name": "GamerPro RGB Mouse",
+    "category": "Gaming Accessories",
+    "description": "High-precision gaming mouse with RGB lighting and programmable buttons.",
+    "specifications": {
+      "dpi": "16000 DPI",
+      "buttons": "8 programmable buttons",
+      "connectivity": "USB-C wired",
+      "sensor": "Optical",
+      "lighting": "RGB with 16.7M colors",
+      "weight": "85g"
+    },
+    "price": 69.99,
+    "image_url": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400",
+    "reviews": [
+      "Perfect for gaming! RGB lighting looks awesome and precision is great.",
+      "Comfortable grip and responsive. Great for FPS games.",
+      "Software is easy to use for customization. Highly recommended.",
+      "A bit expensive for a mouse but the quality justifies it.",
+      "Excellent build quality and the buttons feel solid.",
+      "RGB lighting stopped working after 3 months. Poor quality control.",
+      "Too heavy for long gaming sessions. Makes my wrist hurt.",
+      "Software is buggy and crashes frequently. Very frustrating to use."
+    ]
+  },
+  {
+    "product_id": "mouse_002",
+    "name": "OfficeMate Wireless Mouse",
+    "category": "Office Accessories",
+    "description": "Simple wireless mouse for office work and everyday use. Quiet clicks and ergonomic design.",
+    "specifications": {
+      "dpi": "1600 DPI",
+      "buttons": "3 buttons",
+      "connectivity": "2.4GHz wireless",
+      "sensor": "Optical",
+      "battery": "18 months (2xAA)",
+      "weight": "65g"
+    },
+    "price": 24.99,
+    "image_url": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=400",
+    "reviews": [
+      "Simple and reliable. Perfect for office work.",
+      "Quiet clicks are great for office environments. Good battery life.",
+      "Basic but does the job well. No complaints.",
+      "Ergonomic design is comfortable for long use.",
+      "Great value mouse. Recommended for everyday use."
+    ]
+  },
+  {
+    "product_id": "tablet_001",
+    "name": "TabletPro 12.9",
+    "category": "Tablets",
+    "description": "Professional tablet with stylus support, perfect for digital art and productivity.",
+    "specifications": {
+      "display": "12.9\" Liquid Retina",
+      "processor": "M1 chip",
+      "ram": "8GB",
+      "storage": "256GB",
+      "camera": "12MP rear, 7MP front",
+      "battery": "10 hours",
+      "stylus": "Apple Pencil compatible"
+    },
+    "price": 799.99,
+    "image_url": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400",
+    "reviews": [
+      "Incredible for digital art! The stylus precision is amazing.",
+      "Perfect laptop replacement for most tasks. Display is gorgeous.",
+      "Expensive but worth it for creative professionals.",
+      "Battery life is excellent and performance is smooth.",
+      "Great for note-taking and drawing. Highly recommended for students."
+    ]
+  },
+  {
+    "product_id": "keyboard_001",
+    "name": "MechaType Pro",
+    "category": "Gaming Accessories",
+    "description": "Mechanical gaming keyboard with RGB backlighting and tactile switches.",
+    "specifications": {
+      "switch_type": "Cherry MX Blue",
+      "layout": "Full size (104 keys)",
+      "backlighting": "RGB per-key",
+      "connectivity": "USB-A wired",
+      "features": "Anti-ghosting, media keys",
+      "build": "Aluminum frame"
+    },
+    "price": 129.99,
+    "image_url": "https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=400",
+    "reviews": [
+      "Love the tactile feel! RGB lighting is customizable and looks great.",
+      "Build quality is excellent. Keys feel responsive and durable.",
+      "A bit loud for office use but perfect for gaming at home.",
+      "Worth the investment. Much better than membrane keyboards.",
+      "Great for both gaming and typing. Very satisfied with purchase."
+    ]
+  }
+]
