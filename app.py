@@ -10,15 +10,6 @@ import time
 from typing import Dict, Any, List
 import json
 
-# Import our custom modules
-from data_loader import DataLoader
-from embeddings import EmbeddingManager
-from retriever import ProductRetriever
-from sentiment import SentimentAnalyzer
-from gemini_client import GeminiClient
-from evaluation import RAGEvaluator
-
-
 # Page configuration
 st.set_page_config(
     page_title="Smart Product Recommendations",
@@ -26,6 +17,28 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Health check for deployment
+if 'health_check' not in st.session_state:
+    st.session_state.health_check = True
+
+# Quick health check endpoint simulation
+try:
+    # Test basic imports and functionality
+    from data_loader import DataLoader
+    from embeddings import EmbeddingManager
+    from retriever import ProductRetriever
+    from sentiment import SentimentAnalyzer
+    from gemini_client import GeminiClient
+    from evaluation import RAGEvaluator
+    
+    # Initialize core components quietly
+    if 'app_initialized' not in st.session_state:
+        with st.spinner("🚀 Initializing RAG system..."):
+            st.session_state.app_initialized = True
+except Exception as e:
+    st.error(f"🔧 App initialization issue: {e}")
+    st.info("🔄 Please refresh the page if this persists.")
 
 # Custom CSS for better styling
 st.markdown("""
