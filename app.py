@@ -17,44 +17,74 @@ from system_status import display_status_info
 try:
     from data_loader import DataLoader
     DATA_LOADER_AVAILABLE = True
-except ImportError as e:
-    print(f"DataLoader import failed: {e}")
+except Exception as e:
+    st.error(f"❌ DataLoader import failed: {e}")
     DATA_LOADER_AVAILABLE = False
 
 try:
     from embeddings import EmbeddingManager
     EMBEDDING_MANAGER_AVAILABLE = True
-except ImportError as e:
-    print(f"EmbeddingManager import failed: {e}")
-    EMBEDDING_MANAGER_AVAILABLE = False
+except Exception as e:
+    st.warning(f"⚠️ EmbeddingManager import failed: {e}")
+    try:
+        from embeddings_fallback import FallbackEmbeddingManager as EmbeddingManager
+        EMBEDDING_MANAGER_AVAILABLE = True
+        st.info("🔄 Using fallback embedding manager")
+    except Exception as e2:
+        st.error(f"❌ Both embedding managers failed: {e2}")
+        EMBEDDING_MANAGER_AVAILABLE = False
 
 try:
     from retriever import ProductRetriever
     RETRIEVER_AVAILABLE = True
-except ImportError as e:
-    print(f"ProductRetriever import failed: {e}")
-    RETRIEVER_AVAILABLE = False
+except Exception as e:
+    st.warning(f"⚠️ ProductRetriever import failed: {e}")
+    try:
+        from fallback_components import FallbackProductRetriever as ProductRetriever
+        RETRIEVER_AVAILABLE = True
+        st.info("🔄 Using fallback product retriever")
+    except Exception as e2:
+        st.error(f"❌ Both retrievers failed: {e2}")
+        RETRIEVER_AVAILABLE = False
 
 try:
     from sentiment import SentimentAnalyzer
     SENTIMENT_ANALYZER_AVAILABLE = True
-except ImportError as e:
-    print(f"SentimentAnalyzer import failed: {e}")
-    SENTIMENT_ANALYZER_AVAILABLE = False
+except Exception as e:
+    st.warning(f"⚠️ SentimentAnalyzer import failed: {e}")
+    try:
+        from fallback_components import FallbackSentimentAnalyzer as SentimentAnalyzer
+        SENTIMENT_ANALYZER_AVAILABLE = True
+        st.info("🔄 Using fallback sentiment analyzer")
+    except Exception as e2:
+        st.error(f"❌ Both sentiment analyzers failed: {e2}")
+        SENTIMENT_ANALYZER_AVAILABLE = False
 
 try:
     from gemini_client import GeminiClient
     GEMINI_CLIENT_AVAILABLE = True
-except ImportError as e:
-    print(f"GeminiClient import failed: {e}")
-    GEMINI_CLIENT_AVAILABLE = False
+except Exception as e:
+    st.warning(f"⚠️ GeminiClient import failed: {e}")
+    try:
+        from fallback_components import FallbackGeminiClient as GeminiClient
+        GEMINI_CLIENT_AVAILABLE = True
+        st.info("🔄 Using fallback Gemini client")
+    except Exception as e2:
+        st.error(f"❌ Both Gemini clients failed: {e2}")
+        GEMINI_CLIENT_AVAILABLE = False
 
 try:
     from evaluation import RAGEvaluator
     RAG_EVALUATOR_AVAILABLE = True
-except ImportError as e:
-    print(f"RAGEvaluator import failed: {e}")
-    RAG_EVALUATOR_AVAILABLE = False
+except Exception as e:
+    st.warning(f"⚠️ RAGEvaluator import failed: {e}")
+    try:
+        from fallback_components import FallbackRAGEvaluator as RAGEvaluator
+        RAG_EVALUATOR_AVAILABLE = True
+        st.info("🔄 Using fallback RAG evaluator")
+    except Exception as e2:
+        st.error(f"❌ Both evaluators failed: {e2}")
+        RAG_EVALUATOR_AVAILABLE = False
 
 # Page configuration
 st.set_page_config(

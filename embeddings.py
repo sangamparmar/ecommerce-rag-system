@@ -9,17 +9,30 @@ import json
 import numpy as np
 from typing import List, Dict, Any, Tuple
 
-# ChromaDB import with fallback handling
-try:
-    import chromadb
-    from chromadb.config import Settings
-    CHROMADB_AVAILABLE = True
-except ImportError as e:
-    print(f"ChromaDB import failed: {e}")
-    print("Installing compatible ChromaDB version...")
-    CHROMADB_AVAILABLE = False
+# ChromaDB import with comprehensive error handling
+CHROMADB_AVAILABLE = False
+chromadb = None
+Settings = None
 
-# Sentence Transformers import
+def try_import_chromadb():
+    """Attempt to import ChromaDB with error handling"""
+    global CHROMADB_AVAILABLE, chromadb, Settings
+    try:
+        import chromadb as _chromadb
+        from chromadb.config import Settings as _Settings
+        chromadb = _chromadb
+        Settings = _Settings
+        CHROMADB_AVAILABLE = True
+        return True
+    except (ImportError, RuntimeError, Exception) as e:
+        print(f"ChromaDB unavailable: {e}")
+        CHROMADB_AVAILABLE = False
+        return False
+
+# Try to import ChromaDB, but don't fail if it doesn't work
+try_import_chromadb()
+
+# Safe imports
 from sentence_transformers import SentenceTransformer
 from data_loader import DataLoader
 
